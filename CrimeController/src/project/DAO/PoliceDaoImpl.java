@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import com.mysql.cj.xdevapi.Result;
 
+import project.Model.CaseBean;
 import project.Model.PoliceBean;
 import project.Utility.DBUtility;
 
@@ -76,6 +77,47 @@ public class PoliceDaoImpl implements PoliceDao {
 		
 		
 		return police;
+	}
+
+	@Override
+	public CaseBean AssignCaseToPolice(int id, int caseId) {
+		CaseBean  c = null;
+		try(Connection conn = DBUtility.provideConnection()){
+		
+	     PreparedStatement ps=	conn.prepareStatement("update police SET caseId = ? where id = ?");	
+	 	 ps.setInt(1, caseId);	
+	
+	     ps.setInt(2, id);
+	     
+	    int x =  ps.executeUpdate();
+	    
+	    if(x>0) {
+	    
+	    PreparedStatement ps1 = conn.prepareStatement("select * from crime");
+	     ResultSet rs = ps1.executeQuery();
+	    
+		  
+		 if(rs.next()) {
+			 c= new CaseBean();
+			  
+			  c.setCrimeId(rs.getInt("crimeId"));
+			  c.setDate(rs.getDate("date"));
+			  c.setDetails(rs.getString("details"));
+			  c.setDiscription(rs.getString("discription"));
+			  c.setPlace(rs.getString("place"));
+			  c.setStatus(rs.getBoolean("status"));
+			  c.setVictims(rs.getString("victims"));
+			  c.setSuspects(rs.getString("suspects"));
+	  }
+	    }else {
+	    	System.out.println("Something went wrong...!");
+	    	return null ;
+	    }
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+
+		return c;
 	}
 
 	
